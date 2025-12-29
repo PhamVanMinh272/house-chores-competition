@@ -1,0 +1,211 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Feeminton",
+    "version" : "1.0"
+  },
+  "servers" : [ {
+    "url" : "https://nno3q5ecp6.execute-api.us-west-2.amazonaws.com/Stage/api"
+    },
+    {
+    "url" : "http://127.0.0.1:5000/api"
+    }
+  ],
+  "paths" : {
+    "/users": {
+        "get": {
+            "tags": ["Users"],
+            "responses": {},
+            "security": []
+        }
+    },
+    "/users/{user_id}/groups": {
+        "get": {
+            "tags": ["Users"],
+            "parameters": [
+                {
+                    "name": "user_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {},
+            "security": []
+        }
+    },
+    "/chores": {
+        "get": {
+            "tags": ["Chores"],
+            "parameters": [
+                {
+                    "name": "groupId",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {},
+            "security": []
+        }
+    },
+    "/schedules": {
+        "get": {
+            "tags": ["Schedules"],
+            "parameters": [
+                {
+                    "name": "groupId",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {},
+            "security": []
+        },
+      "post": {
+        "tags": ["Schedules"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewSchedule"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "security": []
+      }
+    },
+    "/members" : {
+      "get" : {
+        "tags": ["Members"],
+        "responses": {},
+        "security": []
+      }
+    },
+    "/reservations": {
+      "get" : {
+        "tags": ["Reservations"],
+        "responses": {},
+        "security": []
+      },
+      "post": {
+        "tags": ["Reservations"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewReservation"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "security": []
+      }
+    },
+    "/attendances/{attendance_id}": {
+      "patch": {
+        "tags": ["Attendances"],
+        "parameters": [
+          {
+            "name": "attendance_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAttendance"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "security": []
+      }
+    }
+  },
+  "components" : {
+    "schemas": {
+      "NewSchedule": {
+            "type": "object",
+            "properties": {
+              "scheduleDate": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2023-11-15T09:00:00Z",
+                "description": "Date and time of the scheduled chore"
+              },
+              "choreId": {
+                "type": "integer",
+                "example": 42,
+                "description": "ID of the chore to be assigned"
+              },
+              "memberId": {
+                "type": "integer",
+                "example": 7,
+                "description": "ID of the member assigned to the chore"
+              },
+              "point": {
+                "type": "integer",
+                "default": 0,
+                "description": "Points awarded for completing the chore"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "Pending",
+                  "InProgress",
+                  "Done",
+                  "FullyReviewed"
+                ],
+                "default": "Pending",
+                "description": "Status of the chore assignment"
+              },
+              "comment": {
+                "type": "string",
+                "nullable": true,
+                "description": "Optional comment about the chore assignment"
+              }
+            },
+            "required": [
+              "schedule_date",
+              "chore_id",
+              "member_id"
+            ]
+          },
+      "NewReservation": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2023-10-20T14:48:00.000Z"
+          }
+        }
+      },
+      "UpdateAttendance": {
+        "type": "object",
+        "properties": {
+          "joined": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      }
+    }
+  }
+}

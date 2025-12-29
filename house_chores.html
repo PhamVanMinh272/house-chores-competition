@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Group Chores</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { margin-bottom: 20px; }
+    table { border-collapse: collapse; width: 60%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Household Chores (Group 1)</h1>
+  <table id="choresTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Chore</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- chores will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchChores() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/chores?groupId=1');
+        const data = await response.json();
+        renderChores(data.data);
+      } catch (err) {
+        console.error('Error fetching chores:', err);
+      }
+    }
+
+    function renderChores(chores) {
+      const tbody = document.querySelector('#choresTable tbody');
+      tbody.innerHTML = ''; // clear existing rows
+
+      chores.forEach(chore => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${chore.id}</td>
+          <td>${chore.name}</td>
+          <td>${chore.point}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Load chores on page load
+    fetchChores();
+  </script>
+</body>
+</html>
