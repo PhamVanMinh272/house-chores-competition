@@ -19,6 +19,13 @@ class ScheduleService:
         end_date = start_date + timedelta(days=6)  # Sunday of current week
         return ScheduleRepo(self._conn).get_all_schedules(group_id=group_id, start_date=str(start_date), end_date=str(end_date))
 
+    def get_schedule(self, schedule_id: int):
+        """
+        Get a schedule by ID.
+        :return:
+        """
+        return ScheduleRepo(self._conn).get_schedule_by_id(schedule_id)
+
     def create_schedule(self, schedule_date: str, chore_id: int, member_id: int, point: int, status: str, comment: str):
         """
 

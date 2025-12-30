@@ -13,6 +13,12 @@ def get_schedules(conn, **kwargs):
     return {"data": data}
 
 @db_context_manager
+def get_schedule(conn, schedule_id, **kwargs):
+    data = ScheduleService(conn).get_schedule(schedule_id)
+    logger.info(f"Fetched schedule: {data}")
+    return {"data": data}
+
+@db_context_manager
 def create_schedule(conn, **kwargs):
     print(kwargs)
     schedule_schema = NewScheduleModel(**kwargs)

@@ -28,7 +28,48 @@
   </style>
 </head>
 <body class="container my-4">
-  <h1 class="mb-4">Weekly Chore Schedule (Group 1)</h1>
+  <h5 class="mb-4">Weekly Chore Schedule (Group 1)</h5>
+  <div class="d-flex justify-content-end mb-3">
+    <a href="http://localhost:63342/house-chores-competition/ui/new_schedules.html" class="btn btn-primary">
+      Add New Schedule
+    </a>
+  </div>
+  <div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="scheduleModalLabel">Edit Schedule</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editScheduleForm">
+            <div class="mb-3">
+              <label for="editChore" class="form-label">Chore</label>
+              <input type="text" class="form-control" id="editChore" disabled>
+            </div>
+            <div class="mb-3">
+              <label for="editMember" class="form-label">Member</label>
+              <input type="text" class="form-control" id="editMember" disabled>
+            </div>
+            <div class="mb-3">
+              <label for="editStatus" class="form-label">Status</label>
+              <select class="form-select" id="editStatus">
+                <option value="Pending">Pending</option>
+                <option value="InProgress">In Progress</option>
+                <option value="Done">Done</option>
+                <option value="FullyReviewed">Fully Reviewed</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="editComment" class="form-label">Comment</label>
+              <textarea class="form-control" id="editComment" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="row text-center mb-3">
     <div class="col">Monday</div>
@@ -71,25 +112,93 @@
         const cell = document.getElementById(`day-${dayOfWeek}`);
         if (cell) {
           const card = document.createElement('div');
-          card.className = `card schedule-card status-${sch.status}`;
+          card.className = `card schedule-card shadow rounded status-${sch.status}`;
+          card.dataset.scheduleId = sch.id; // Add schedule ID for click handling
           card.innerHTML = `
             <div class="card-body p-2">
               <h6 class="card-title mb-1">${sch.chore.name}</h6>
-              <p class="card-text mb-1">
-                <small>${sch.member.nickname}</small><br>
-<!--                <strong>Points:</strong> ${sch.point}<br>-->
-<!--                <strong>Status:</strong> ${sch.status}-->
+              <p class="card-text text-muted mb-1">
+                <small>${sch.member.nickname}</small>
               </p>
-<!--              <small class="text-muted">${sch.comment || ''}</small>-->
+              <small class="text-muted">${sch.comment || ''}</small>
             </div>
           `;
           cell.appendChild(card);
+
+          // Attach click event listener
+          card.addEventListener('click', () => {
+            openScheduleDrawer(sch.id);
+          });
         }
       });
     }
 
     // Load schedules on page load
     fetchSchedules();
+
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.schedule-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const scheduleId = card.dataset.scheduleId;
+        openScheduleDrawer(scheduleId);
+      });
+    });
+  });
+
+  async function openScheduleDrawer(scheduleId) {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`);
+      const schedule = await response.json();
+
+      // Populate modal fields
+      document.getElementById('editChore').value = schedule.chore.name;
+      document.getElementById('editMember').value = schedule.member.nickname;
+      document.getElementById('editStatus').value = schedule.status;
+      document.getElementById('editComment').value = schedule.comment;
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+      modal.show();
+    } catch (err) {
+      console.error('Error loading schedule details:', err);
+    }
+  }
+
+  async function updateSchedule(scheduleId) {
+    const payload = {
+      status: document.getElementById('editStatus').value,
+      comment: document.getElementById('editComment').value,
+    };
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error('Failed to update schedule');
+      alert('Schedule updated successfully!');
+      location.reload(); // Reload the page to reflect changes
+    } catch (err) {
+      console.error('Error updating schedule:', err);
+    }
+  };
+
+
+  const card = document.createElement('div');
+  card.className = `card schedule-card shadow rounded status-${sch.status}`;
+  card.dataset.scheduleId = sch.id; // Ensure this is set correctly
+  card.innerHTML = `
+    <div class="card-body p-2">
+      <h6 class="card-title mb-1">${sch.chore.name}</h6>
+      <p class="card-text text-muted mb-1">
+        <small>${sch.member.nickname}</small>
+      </p>
+      <small class="text-muted">${sch.comment || ''}</small>
+    </div>
+  `;
+  cell.appendChild(card);
   </script>
 </body>
 </html>

@@ -84,6 +84,47 @@
         "security": []
       }
     },
+    "/schedules/{schedule_id}": {
+      "get": {
+        "tags": ["Schedules"],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "security": []
+      },
+      "patch": {
+        "tags": ["Schedules"],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewSchedule"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "security": []
+      }
+    },
     "/members" : {
       "get" : {
         "tags": ["Members"],
