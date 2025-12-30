@@ -241,7 +241,7 @@
       data.data.forEach(member => {
         const opt = document.createElement('option');
         opt.value = member.id;
-        opt.textContent = member.memberNickname ?? `Member #${member.id}`;
+        opt.textContent = member.nickname ?? `Member #${member.id}`;
         select.appendChild(opt);
       });
       select.disabled = false;

@@ -9,7 +9,7 @@ Show calendar and see list house chore for the day.
  
 t_User(id, name)
 t_Group(id, name)
-t_Member (id, group_id, user_id, member_nickname)
+t_Member (id, group_id, user_id, nickname)
  
 t_chore (id, name, point, group_id)
  
@@ -32,11 +32,11 @@ where group_id=<group_id> and date between <start_date> and <end_date>
  
 Show member point:
  
-select user_id, member_nickname, point as total_point
+select user_id, nickname, point as total_point
 from t_Schedule
 join t_member on t_member.id = t_Schedule.member_id
 where t_member.group_id=<group_id> and date between <start_date> and <end_date>
-group by user_id, member_nickname
+group by user_id, nickname
  
 Show list of member in a group:
 select user_id, nickname, t_user.name

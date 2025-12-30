@@ -17,7 +17,8 @@ CREATE TABLE t_member (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
-    member_nickname TEXT,
+    nickname TEXT,
+    hex TEXT,
     FOREIGN KEY (group_id) REFERENCES t_Group(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES t_User(id) ON DELETE CASCADE
 );

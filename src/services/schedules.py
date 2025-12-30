@@ -40,7 +40,7 @@ class ScheduleService:
             schedule_date = str(date.today())
         return ScheduleRepo(self._conn).create_schedule(schedule_date, chore_id, member_id, point, status, comment)
 
-    def update_schedule(self, schedule_id: int, schedule_date: str, status: str, comment: str):
+    def update_schedule(self, schedule_id: int, member_id:int, schedule_date: str, point: int, status: str, comment: str):
         """
         Update a schedule.
         Get schedule by ID, then update its fields if changed.
@@ -49,10 +49,12 @@ class ScheduleService:
         existing_schedule = ScheduleRepo(self._conn).get_schedule_by_id(schedule_id)
         if not existing_schedule:
             raise ValueError(f"Schedule with ID {schedule_id} does not exist.")
+        member_id = member_id if member_id is not None else existing_schedule["member"]["id"]
         new_schedule_date = schedule_date if schedule_date is not None else existing_schedule["scheduleDate"]
+        new_point = point if point is not None else existing_schedule["point"]
         new_status = status if status is not None else existing_schedule["status"]
         new_comment = comment if comment is not None else existing_schedule["comment"]
-        ScheduleRepo(self._conn).update_schedule(schedule_id, new_schedule_date, new_status, new_comment)
+        ScheduleRepo(self._conn).update_schedule(schedule_id, member_id, new_schedule_date, new_point, new_status, new_comment)
 
 
     def delete_schedule(self, schedule_id: int):

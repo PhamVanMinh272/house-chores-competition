@@ -17,15 +17,15 @@ INSERT INTO t_group (name) VALUES
 ('Household B');
 
 -- Members (users assigned to groups)
-INSERT INTO t_member (group_id, user_id, member_nickname) VALUES
-(1, 1, 'Minh A'),
-(1, 2, 'Đạt A'),
-(2, 3, 'Thiên A'),
-(2, 4, 'Tâm A'),
-(2, 5, 'Tấn B'),
-(2, 6, 'Thoại B'),
-(2, 7, 'Giao B'),
-(2, 8, 'Ân B');
+INSERT INTO t_member (group_id, user_id, nickname, hex) VALUES
+(1, 1, 'Minh A', '#FF5733'),
+(1, 2, 'Đạt A', '#33FF57'),
+(2, 3, 'Thiên A', '#3357FF'),
+(2, 4, 'Tâm A', '#3357FF'),
+(2, 5, 'Tấn B', '#3357FF'),
+(2, 6, 'Thoại B', '#3357FF'),
+(2, 7, 'Giao B', '#3357FF'),
+(2, 8, 'Ân B', '#3357FF');
 
 -- Chores
 INSERT INTO t_chore (name, point, group_id) VALUES

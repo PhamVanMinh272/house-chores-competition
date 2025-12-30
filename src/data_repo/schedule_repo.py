@@ -16,7 +16,7 @@ class ScheduleRepo:
 
     def get_all_schedules(self, group_id: int, start_date: str, end_date: str):
             sql = """
-            SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.member_nickname, c.point, s.status, s.comment
+            SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.nickname, c.point, s.status, s.comment
             FROM t_schedule s
             JOIN t_chore c ON s.chore_id = c.id
             JOIN t_member m ON s.member_id = m.id
@@ -46,7 +46,7 @@ class ScheduleRepo:
 
     def get_schedule_by_id(self, schedule_id: int):
         sql = """
-        SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.member_nickname, c.point, s.status, s.comment
+        SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.nickname, c.point, s.status, s.comment
         FROM t_schedule s
         JOIN t_chore c ON s.chore_id = c.id
         JOIN t_member m ON s.member_id = m.id
@@ -82,13 +82,13 @@ class ScheduleRepo:
         self._conn.commit()
         return self._cursor.lastrowid
 
-    def update_schedule(self, schedule_id: int, schedule_date: str, status: str, comment: str):
+    def update_schedule(self, schedule_id: int, member_id: int, schedule_date: str, point: int, status: str, comment: str):
         sql = """
         UPDATE t_schedule
-        SET schedule_date = ?, status = ?, comment = ?
+        SET member_id = ?, schedule_date = ?, point = ?, status = ?, comment = ?
         WHERE id = ?
         """
-        self._cursor.execute(sql, (schedule_date, status, comment, schedule_id))
+        self._cursor.execute(sql, (member_id, schedule_date, point, status, comment, schedule_id))
         self._conn.commit()
 
     def delete_schedule(self, schedule_id: int):
