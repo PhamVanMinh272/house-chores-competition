@@ -40,40 +40,36 @@
       Add New Schedule
     </a>
   </div>
-  <div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="scheduleModalLabel">Edit Schedule</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="offcanvas offcanvas-end" id="scheduleDrawer" tabindex="-1" aria-labelledby="scheduleDrawerLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="scheduleDrawerLabel">Edit Schedule</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <form id="editScheduleForm">
+        <div class="mb-3">
+          <label for="editChore" class="form-label">Chore</label>
+          <select class="form-select" id="editChore"></select>
         </div>
-        <div class="modal-body">
-          <form id="editScheduleForm">
-            <div class="mb-3">
-              <label for="editChore" class="form-label">Chore</label>
-              <input type="text" class="form-control" id="editChore" disabled>
-            </div>
-            <div class="mb-3">
-              <label for="editMember" class="form-label">Member</label>
-              <input type="text" class="form-control" id="editMember" disabled>
-            </div>
-            <div class="mb-3">
-              <label for="editStatus" class="form-label">Status</label>
-              <select class="form-select" id="editStatus">
-                <option value="Pending">Pending</option>
-                <option value="InProgress">In Progress</option>
-                <option value="Done">Done</option>
-                <option value="FullyReviewed">Fully Reviewed</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="editComment" class="form-label">Comment</label>
-              <textarea class="form-control" id="editComment" rows="3"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-          </form>
+        <div class="mb-3">
+          <label for="editMember" class="form-label">Member</label>
+          <select class="form-select" id="editMember"></select>
         </div>
-      </div>
+        <div class="mb-3">
+          <label for="editStatus" class="form-label">Status</label>
+          <select class="form-select" id="editStatus">
+            <option value="Pending">Pending</option>
+            <option value="InProgress">In Progress</option>
+            <option value="Done">Done</option>
+            <option value="FullyReviewed">Fully Reviewed</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="editComment" class="form-label">Comment</label>
+          <textarea class="form-control" id="editComment" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </form>
     </div>
   </div>
 
@@ -154,19 +150,44 @@
 
   async function openScheduleDrawer(scheduleId) {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`);
-      const schedule = await response.json();
+      const [scheduleRes, choresRes, membersRes] = await Promise.all([
+        fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`),
+        fetch(`http://127.0.0.1:5000/api/chores?groupId=1`),
+        fetch(`http://127.0.0.1:5000/api/members?groupId=1`)
+      ]);
 
-      // Populate modal fields
-<!--      document.getElementById('editChore').value = schedule.data.chore.name;-->
-      document.getElementById('editMember').value = schedule.data.member.nickname;
+      if (!scheduleRes.ok || !choresRes.ok || !membersRes.ok) {
+        throw new Error('Failed to load data');
+      }
+
+      const schedule = await scheduleRes.json();
+      const chores = await choresRes.json();
+      const members = await membersRes.json();
+
+      // Populate chore select
+      const choreSelect = document.getElementById('editChore');
+      choreSelect.innerHTML = chores.data.map(chore =>
+        `<option value="${chore.id}" ${chore.id === schedule.data.chore.id ? 'selected' : ''}>
+          ${chore.name}
+        </option>`
+      ).join('');
+
+      // Populate member select
+      const memberSelect = document.getElementById('editMember');
+      memberSelect.innerHTML = members.data.map(member =>
+        `<option value="${member.id}" ${member.id === schedule.data.member.id ? 'selected' : ''}>
+          ${member.memberNickname}
+        </option>`
+      ).join('');
+
+      // Populate other fields
       document.getElementById('editStatus').value = schedule.data.status;
       document.getElementById('editComment').value = schedule.data.comment;
 
-      // Ensure the modal is properly initialized and shown
-      const modalElement = document.getElementById('scheduleModal');
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+      // Show the drawer
+      const drawerElement = document.getElementById('scheduleDrawer');
+      const drawer = new bootstrap.Offcanvas(drawerElement);
+      drawer.show();
     } catch (err) {
       console.error('Error loading schedule details:', err);
     }
@@ -174,6 +195,8 @@
 
   async function updateSchedule(scheduleId) {
     const payload = {
+      choreId: Number(document.getElementById('editChore').value),
+      memberId: Number(document.getElementById('editMember').value),
       status: document.getElementById('editStatus').value,
       comment: document.getElementById('editComment').value,
     };
@@ -191,8 +214,7 @@
     } catch (err) {
       console.error('Error updating schedule:', err);
     }
-  };
-
+  }
 
   const card = document.createElement('div');
   card.className = `card schedule-card shadow rounded status-${sch.status}`;
