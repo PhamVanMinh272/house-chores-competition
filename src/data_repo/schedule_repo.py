@@ -16,7 +16,7 @@ class ScheduleRepo:
 
     def get_all_schedules(self, group_id: int, start_date: str, end_date: str):
             sql = """
-            SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.nickname, c.point, s.status, s.comment
+            SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.nickname, m.hex, c.point, s.status, s.comment
             FROM t_schedule s
             JOIN t_chore c ON s.chore_id = c.id
             JOIN t_member m ON s.member_id = m.id
@@ -35,10 +35,11 @@ class ScheduleRepo:
                     "member": {
                         "id": row[4],
                         "nickname": row[5],
+                        "hex": row[6],
                     },
-                    "point": row[6],
-                    "status": row[7],
-                    "comment": row[8],
+                    "point": row[7],
+                    "status": row[8],
+                    "comment": row[9],
                 }
                 for row in rows
             ]

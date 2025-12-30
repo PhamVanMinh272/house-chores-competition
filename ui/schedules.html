@@ -27,7 +27,7 @@
       background-color: #b6d1fa;
       transform: scale(0.95);
     }
-    .status-Pending { background-color: #b6d8fa; }
+    .status-Pending { background-color: #e6eef0; }
     .status-InProgress { background-color: #cce5ff; }
     .status-Done { background-color: #d4edda; }
     .status-FullyReviewed { background-color: #e2e3e5; }
@@ -123,6 +123,11 @@
         const card = document.createElement('div');
         card.className = `card schedule-card shadow rounded status-${sch.status}`;
         card.dataset.scheduleId = sch.id;
+
+        // ✅ Set left border color to member.hex (fallback to gray)
+        const hex = sch.member?.hex || '#999999';
+        card.style.borderLeftColor = hex;
+
         card.innerHTML = `
           <div class="card-body p-2">
             <h6 class="card-title mb-1">${sch.chore?.name ?? 'Unknown chore'}</h6>
@@ -257,172 +262,5 @@
     });
   </script>
 
-<!--  <script>-->
-
-<!--    // -&#45;&#45; State -&#45;&#45;-->
-<!--    let currentScheduleId = null; // store the schedule ID being edited-->
-
-<!--    async function fetchSchedules() {-->
-<!--      try {-->
-<!--        const response = await fetch('http://127.0.0.1:5000/api/schedules?groupId=1');-->
-<!--        const data = await response.json();-->
-<!--        renderSchedules(data.data);-->
-<!--      } catch (err) {-->
-<!--        console.error('Error fetching schedules:', err);-->
-<!--      }-->
-<!--    }-->
-
-<!--    function renderSchedules(schedules) {-->
-<!--      // Clear existing rows-->
-<!--      document.querySelectorAll('#scheduleRow .col').forEach(col => (col.innerHTML = ''));-->
-
-<!--      schedules.forEach(sch => {-->
-<!--        const date = new Date(sch.scheduleDate);-->
-<!--        const dayOfWeek = date.getDay(); // Sunday=0, Monday=1, ...-->
-<!--        const cell = document.getElementById(`day-${dayOfWeek}`);-->
-<!--        if (cell) {-->
-<!--          const card = document.createElement('div');-->
-<!--          card.className = `card schedule-card shadow rounded status-${sch.status}`;-->
-<!--          card.dataset.scheduleId = sch.id; // Add schedule ID for click handling-->
-<!--          card.innerHTML = `-->
-<!--            <div class="card-body p-2">-->
-<!--              <h6 class="card-title mb-1">${sch.chore.name}</h6>-->
-<!--              <p class="card-text text-muted mb-1">-->
-<!--                <small>${sch.member.nickname}</small>-->
-<!--              </p>-->
-<!--              <small class="text-muted">${sch.comment || ''}</small>-->
-<!--            </div>-->
-<!--          `;-->
-<!--          cell.appendChild(card);-->
-
-<!--          // Attach click event listener-->
-<!--          card.addEventListener('click', () => {-->
-<!--            openScheduleDrawer(sch.id);-->
-<!--          });-->
-<!--        }-->
-<!--      });-->
-<!--    }-->
-
-<!--    // Load schedules on page load-->
-<!--    fetchSchedules();-->
-
-<!--    document.addEventListener('DOMContentLoaded', () => {-->
-<!--    document.querySelectorAll('.schedule-card').forEach(card => {-->
-<!--      card.addEventListener('click', () => {-->
-<!--        const scheduleId = card.dataset.scheduleId;-->
-<!--        openScheduleDrawer(scheduleId);-->
-<!--      });-->
-<!--    });-->
-<!--  });-->
-
-<!--  // -&#45;&#45; Open drawer and populate form -&#45;&#45;-->
-<!--  async function openScheduleDrawer(scheduleId) {-->
-<!--    try {-->
-<!--      const [scheduleRes, choresRes, membersRes] = await Promise.all([-->
-<!--        fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`),-->
-<!--        fetch(`http://127.0.0.1:5000/api/chores?groupId=1`),-->
-<!--        fetch(`http://127.0.0.1:5000/api/members?groupId=1`)-->
-<!--      ]);-->
-
-<!--      if (!scheduleRes.ok || !choresRes.ok || !membersRes.ok) {-->
-<!--        throw new Error('Failed to load data');-->
-<!--      }-->
-
-<!--      // Store current schedule id for the save button-->
-<!--      currentScheduleId = scheduleId;-->
-
-<!--      const schedule = await scheduleRes.json();-->
-<!--      const chores = await choresRes.json();-->
-<!--      const members = await membersRes.json();-->
-
-<!--      // Populate chore select-->
-<!--      const choreSelect = document.getElementById('editChore');-->
-<!--      choreSelect.innerHTML = chores.data.map(chore =>-->
-<!--        `<option value="${chore.id}" ${chore.id === schedule.data.chore.id ? 'selected' : ''}>-->
-<!--          ${chore.name}-->
-<!--        </option>`-->
-<!--      ).join('');-->
-
-<!--      // Populate member select-->
-<!--      const memberSelect = document.getElementById('editMember');-->
-<!--      memberSelect.innerHTML = members.data.map(member =>-->
-<!--        `<option value="${member.id}" ${member.id === schedule.data.member.id ? 'selected' : ''}>-->
-<!--          ${member.memberNickname}-->
-<!--        </option>`-->
-<!--      ).join('');-->
-
-<!--      // Populate other fields-->
-<!--      document.getElementById('editStatus').value = schedule.data.status;-->
-<!--      document.getElementById('editComment').value = schedule.data.comment;-->
-
-<!--      // Show the drawer-->
-<!--      const drawerElement = document.getElementById('scheduleDrawer');-->
-<!--      const drawer = new bootstrap.Offcanvas(drawerElement);-->
-<!--      drawer.show();-->
-<!--    } catch (err) {-->
-<!--      console.error('Error loading schedule details:', err);-->
-<!--    }-->
-<!--  }-->
-
-<!--  // -&#45;&#45; Patch schedule via button click -&#45;&#45;-->
-<!--  async function updateSchedule(scheduleId) {-->
-<!--    const payload = {-->
-<!--      choreId: Number(document.getElementById('editChore').value),-->
-<!--      memberId: Number(document.getElementById('editMember').value),-->
-<!--      status: document.getElementById('editStatus').value,-->
-<!--      comment: document.getElementById('editComment').value-->
-<!--    };-->
-<!--    console.log('PATCH payload:', payload);-->
-
-<!--    try {-->
-<!--      const response = await fetch(`http://127.0.0.1:5000/api/schedules/${scheduleId}`, {-->
-<!--        method: 'PATCH',-->
-<!--        headers: { 'Content-Type': 'application/json' },-->
-<!--        body: JSON.stringify(payload)-->
-<!--      });-->
-
-<!--      if (!response.ok) {-->
-<!--        let detail = '';-->
-<!--        try { detail = (await response.json())?.message ?? ''; } catch {}-->
-<!--        throw new Error(`Failed to update schedule (${response.status}). ${detail}`);-->
-<!--      }-->
-
-<!--      alert('Schedule updated successfully!');-->
-
-<!--      // Close drawer-->
-<!--      const drawerElement = document.getElementById('scheduleDrawer');-->
-<!--      const offcanvasInstance = bootstrap.Offcanvas.getInstance(drawerElement);-->
-<!--      if (offcanvasInstance) offcanvasInstance.hide();-->
-
-<!--      // Refresh UI (no full reload)-->
-<!--      await fetchSchedules();-->
-<!--    } catch (err) {-->
-<!--      console.error('Error updating schedule:', err);-->
-<!--      alert(`Error updating schedule: ${err.message}`);-->
-<!--    }-->
-<!--  }-->
-
-
-<!--  const card = document.createElement('div');-->
-<!--  card.className = `card schedule-card shadow rounded status-${sch.status}`;-->
-<!--  card.dataset.scheduleId = sch.id; // Ensure this is set correctly-->
-<!--  card.innerHTML = `-->
-<!--    <div class="card-body p-2">-->
-<!--      <h6 class="card-title mb-1">${sch.chore.name}</h6>-->
-<!--      <p class="card-text text-muted mb-1">-->
-<!--        <small>${sch.member.nickname}</small>-->
-<!--      </p>-->
-<!--      <small class="text-muted">${sch.comment || ''}</small>-->
-<!--    </div>-->
-<!--  `;-->
-<!--  cell.appendChild(card);-->
-
-<!--  document.getElementById('saveChangesBtn').addEventListener('click', () => {-->
-<!--    console.log('Save Changes clicked for schedule ID:', currentScheduleId);-->
-<!--    if (currentScheduleId) {-->
-<!--      updateSchedule(currentScheduleId);-->
-<!--    }-->
-<!--  });-->
-<!--  </script>-->
 </body>
 </html>
