@@ -24,3 +24,7 @@ def get_schedule(schedule_id):
 @schedules_router.route("", methods=["POST"])
 def create_schedule():
     return schedules.create_schedule(**request.json)
+
+@schedules_router.route("/<int:schedule_id>", methods=["DELETE"])
+def delete_schedule(schedule_id):
+    return schedules.delete_schedule(schedule_id=schedule_id)

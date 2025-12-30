@@ -60,9 +60,6 @@
                   name="scheduleDate"
                   required
                 />
-                <!-- <div class="form-text form-help">
-                  Defaults to today. Time will be posted as <strong>09:00:00Z</strong>.
-                </div> -->
               </div>
 
               <!-- Chore select -->
@@ -71,9 +68,6 @@
                 <select class="form-select" id="choreId" name="choreId" required disabled>
                   <option value="">Loading chores…</option>
                 </select>
-                <!-- <div class="form-text form-help">
-                  Loaded from <code>GET /api/chores?groupId=1</code>.
-                </div> -->
               </div>
 
               <!-- Member select -->
@@ -82,57 +76,57 @@
                 <select class="form-select" id="memberId" name="memberId" required disabled>
                   <option value="">Loading members…</option>
                 </select>
-                <!-- <div class="form-text form-help">
-                  Loaded from <code>GET /api/members?groupId=1</code>.
-                </div> -->
               </div>
 
-              <!-- Point (optional, None by default) -->
-              <div class="mb-3">
-                <label class="form-label" for="point">Point (optional)</label>
-                <input
-                  type="number"
-                  inputmode="numeric"
-                  class="form-control"
-                  id="point"
-                  name="point"
-                  placeholder="Leave empty for None"
-                  min="0"
-                  step="1"
-                />
-                <!-- <div class="form-text form-help">
-                  If empty, we send <code>null</code>. Enter a number to set points.
-                </div> -->
-              </div>
+              <!-- Collapsible Advanced Options -->
+              <p>
+                <a class="btn btn-link" data-bs-toggle="collapse" href="#advancedOptions" role="button" aria-expanded="false" aria-controls="advancedOptions">
+                  Show Advanced Options
+                </a>
+              </p>
 
-              <!-- Status (default Pending) -->
-              <div class="mb-3">
-                <label class="form-label" for="status">Status</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="status"
-                  name="status"
-                  value="Pending"
-                  readonly
-                />
-                <div class="form-text form-help">
-                  Status defaults to <strong>Pending</strong>.
+              <div class="collapse" id="advancedOptions">
+                <!-- Point (optional) -->
+                <div class="mb-3">
+                  <label class="form-label" for="point">Point (optional)</label>
+                  <input
+                    type="number"
+                    inputmode="numeric"
+                    class="form-control"
+                    id="point"
+                    name="point"
+                    placeholder="Leave empty for None"
+                    min="0"
+                    step="1"
+                  />
                 </div>
-              </div>
 
-              <!-- Comment (optional) -->
-              <div class="mb-3">
-                <label class="form-label" for="comment">Comment (optional)</label>
-                <textarea
-                  class="form-control"
-                  id="comment"
-                  name="comment"
-                  rows="3"
-                  placeholder="Add a note (optional)"
-                ></textarea>
-                <div class="form-text form-help">
-                  Empty by default.
+                <!-- Status (default Pending) -->
+                <div class="mb-3">
+                  <label class="form-label" for="status">Status</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="status"
+                    name="status"
+                    value="Pending"
+                    readonly
+                  />
+                  <div class="form-text form-help">
+                    Status defaults to <strong>Pending</strong>.
+                  </div>
+                </div>
+
+                <!-- Comment (optional) -->
+                <div class="mb-3">
+                  <label class="form-label" for="comment">Comment (optional)</label>
+                  <textarea
+                    class="form-control"
+                    id="comment"
+                    name="comment"
+                    rows="3"
+                    placeholder="Add a note (optional)"
+                  ></textarea>
                 </div>
               </div>
 
@@ -143,30 +137,12 @@
                 </button>
                 <a
                   class="btn btn-outline-secondary"
-                  href="http://localhost:63342/house-chores-competition/ui/schedules.html" >      Go to Schedule List
+                  href="http://localhost:63342/house-chores-competition/ui/schedules.html"
+                >
+                  Go to Schedule List
                 </a>
               </div>
             </form>
-          </div>
-        </div>
-
-        <!-- Small helper card -->
-        <div class="card mt-3">
-          <div class="card-body">
-            <small class="text-muted">
-              This page posts to <code>POST http://127.0.0.1/api/schedules</code> with JSON:
-              <pre class="mb-0">
-                  <code>{
-                      "scheduleDate": "YYYY-MM-DDT09:00:00Z",
-                      "choreId": &lt;number&gt;,
-                      "memberId": &lt;number&gt;,
-                      "point": null | &lt;number&gt;,
-                      "status": "Pending",
-                      "comment": ""
-                        }
-                  </code>
-              </pre>
-            </small>
           </div>
         </div>
       </div>
