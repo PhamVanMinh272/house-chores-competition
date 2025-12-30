@@ -60,9 +60,9 @@
                   name="scheduleDate"
                   required
                 />
-                <div class="form-text form-help">
+                <!-- <div class="form-text form-help">
                   Defaults to today. Time will be posted as <strong>09:00:00Z</strong>.
-                </div>
+                </div> -->
               </div>
 
               <!-- Chore select -->
@@ -71,9 +71,9 @@
                 <select class="form-select" id="choreId" name="choreId" required disabled>
                   <option value="">Loading chores…</option>
                 </select>
-                <div class="form-text form-help">
+                <!-- <div class="form-text form-help">
                   Loaded from <code>GET /api/chores?groupId=1</code>.
-                </div>
+                </div> -->
               </div>
 
               <!-- Member select -->
@@ -82,9 +82,9 @@
                 <select class="form-select" id="memberId" name="memberId" required disabled>
                   <option value="">Loading members…</option>
                 </select>
-                <div class="form-text form-help">
+                <!-- <div class="form-text form-help">
                   Loaded from <code>GET /api/members?groupId=1</code>.
-                </div>
+                </div> -->
               </div>
 
               <!-- Point (optional, None by default) -->
@@ -100,9 +100,9 @@
                   min="0"
                   step="1"
                 />
-                <div class="form-text form-help">
+                <!-- <div class="form-text form-help">
                   If empty, we send <code>null</code>. Enter a number to set points.
-                </div>
+                </div> -->
               </div>
 
               <!-- Status (default Pending) -->
@@ -315,6 +315,9 @@
       showAlert('Schedule created successfully!', 'success');
       document.getElementById('comment').value = '';
       document.getElementById('point').value = '';
+      // Auto redirect
+      window.location.href = 'http://localhost:63342/house-chores-competition/ui/schedules.html';
+
     } catch (err) {
       showAlert(`Error creating schedule: ${err.message}`, 'danger');
     } finally {

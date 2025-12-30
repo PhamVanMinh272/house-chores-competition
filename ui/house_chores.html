@@ -13,46 +13,76 @@
     class="btn btn-outline-secondary"
     href="http://localhost:63342/house-chores-competition/ui/schedules.html" >      Go to Schedule List
   </a>
-  <br><br/>
 
-  <!-- Form to create a new chore -->
-  <div class="card mb-4">
-    <div class="card-header">Add a New Chore</div>
-    <div class="card-body">
-      <form id="choreForm">
-        <div class="mb-3">
-          <label for="name" class="form-label">Chore Name</label>
-          <input type="text" class="form-control" id="name" required>
+  <!-- Smaller form -->
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-6"> <!-- limits width -->
+      <div class="card mb-4">
+        <div class="card-header">Add a New Chore</div>
+        <div class="card-body">
+          <form id="choreForm">
+            <div class="mb-3">
+              <label for="name" class="form-label">Chore Name</label>
+              <input type="text" class="form-control form-control-sm" id="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control form-control-sm" id="description" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="point" class="form-label">Points</label>
+              <input type="number" class="form-control form-control-sm" id="point" required>
+            </div>
+            <div class="mb-3">
+              <label for="groupId" class="form-label">Group ID</label>
+              <!-- <input type="number" class="form-control form-control-sm" id="groupId" required> -->
+              <select class="form-select" id="groupId"></select>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Create Chore</button>
+          </form>
         </div>
-        <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
-          <textarea class="form-control" id="description" rows="2" required></textarea>
-        </div>
-        <div class="mb-3">
-          <label for="point" class="form-label">Points</label>
-          <input type="number" class="form-control" id="point" required>
-        </div>
-        <div class="mb-3">
-          <label for="groupId" class="form-label">Group ID</label>
-          <input type="number" class="form-control" id="groupId" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Chore</button>
-      </form>
+      </div>
     </div>
   </div>
 
   <!-- List of chores -->
   <div class="card">
     <div class="card-header">Chore List</div>
-    <ul class="list-group list-group-flush" id="choreList">
-      <!-- chores will be injected here -->
-    </ul>
+    <ul class="list-group list-group-flush" id="choreList"></ul>
   </div>
 </div>
 
 <script>
   const choreForm = document.getElementById('choreForm');
   const choreList = document.getElementById('choreList');
+
+  // Populate Group select GET /api/users/1/groups
+  async function loadGroups() {
+    try {
+      const [groupres] = await Promise.all([
+        fetch(`http://127.0.0.1:5000/api/users/1/groups`)
+      ]);
+
+      if (!groupres.ok) {
+        throw new Error('Failed to load data');
+      }
+
+      const groups = await groupres.json();
+
+      const groupData = groups.data;
+
+      // Populate selects
+      const groupSelect = document.getElementById('groupId');
+      groupSelect.innerHTML = groupData.map(group =>
+        `<option value="${group.id}" ${group.id === groupData.id ? 'selected' : ''}>
+          ${group.name}
+        </option>`
+      ).join('');
+     } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  }
+  loadGroups();
 
   // Fetch chores from API
   async function loadChores() {
