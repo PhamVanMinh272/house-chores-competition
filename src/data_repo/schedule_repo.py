@@ -46,7 +46,7 @@ class ScheduleRepo:
 
     def get_schedule_by_id(self, schedule_id: int):
         sql = """
-        SELECT s.id, s.schedule_date, s.chore_id, s.member_id, m.member_nickname, c.point, s.status, s.comment
+        SELECT s.id, s.schedule_date, s.chore_id, c.name, s.member_id, m.member_nickname, c.point, s.status, s.comment
         FROM t_schedule s
         JOIN t_chore c ON s.chore_id = c.id
         JOIN t_member m ON s.member_id = m.id
@@ -58,14 +58,17 @@ class ScheduleRepo:
             schedule = {
                 "id": row[0],
                 "scheduleDate": row[1],
-                "choreId": row[2],
-                "member": {
-                    "id": row[3],
-                    "nickname": row[4],
+                "chore": {
+                    "id": row[2],
+                    "name": row[3],
                 },
-                "point": row[5],
-                "status": row[6],
-                "comment": row[7],
+                "member": {
+                    "id": row[4],
+                    "nickname": row[5],
+                },
+                "point": row[6],
+                "status": row[7],
+                "comment": row[8],
             }
             return schedule
         return None
