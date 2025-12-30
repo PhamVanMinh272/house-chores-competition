@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create House Chore Schedule</title>
+
+  <!-- Bootstrap CSS (v5.x) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<!--  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>-->
+
+  <style>
+    body {
+      background: #f8fafc;
+    }
+    .card {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    }
+    .form-help {
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+    .required::after {
+      content: " *";
+      color: #dc3545;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+      <a>#House Chores</a>
+      <div class="ms-auto">
+        <a href="http://localhost:63342/house-chores-competition/ui/schedules.html"> View Schedule List</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-7">
+        <div class="card">
+          <div class="card-header bg-white">
+            <h1 class="h4 mb-0">Create a Schedule</h1>
+          </div>
+          <div class="card-body">
+            <!-- Alerts -->
+            <div id="alert-container" class="mb-3" aria-live="polite"></div>
+
+            <form id="schedule-form" novalidate>
+              <!-- Schedule Date (calendar) -->
+              <div class="mb-3">
+                <label class="form-label required" for="scheduleDate">Schedule Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="scheduleDate"
+                  name="scheduleDate"
+                  required
+                />
+                <div class="form-text form-help">
+                  Defaults to today. Time will be posted as <strong>09:00:00Z</strong>.
+                </div>
+              </div>
+
+              <!-- Chore select -->
+              <div class="mb-3">
+                <label class="form-label required" for="choreId">Chore</label>
+                <select class="form-select" id="choreId" name="choreId" required disabled>
+                  <option value="">Loading chores…</option>
+                </select>
+                <div class="form-text form-help">
+                  Loaded from <code>GET /api/chores?groupId=1</code>.
+                </div>
+              </div>
+
+              <!-- Member select -->
+              <div class="mb-3">
+                <label class="form-label required" for="memberId">Member</label>
+                <select class="form-select" id="memberId" name="memberId" required disabled>
+                  <option value="">Loading members…</option>
+                </select>
+                <div class="form-text form-help">
+                  Loaded from <code>GET /api/members?groupId=1</code>.
+                </div>
+              </div>
+
+              <!-- Point (optional, None by default) -->
+              <div class="mb-3">
+                <label class="form-label" for="point">Point (optional)</label>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  class="form-control"
+                  id="point"
+                  name="point"
+                  placeholder="Leave empty for None"
+                  min="0"
+                  step="1"
+                />
+                <div class="form-text form-help">
+                  If empty, we send <code>null</code>. Enter a number to set points.
+                </div>
+              </div>
+
+              <!-- Status (default Pending) -->
+              <div class="mb-3">
+                <label class="form-label" for="status">Status</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="status"
+                  name="status"
+                  value="Pending"
+                  readonly
+                />
+                <div class="form-text form-help">
+                  Status defaults to <strong>Pending</strong>.
+                </div>
+              </div>
+
+              <!-- Comment (optional) -->
+              <div class="mb-3">
+                <label class="form-label" for="comment">Comment (optional)</label>
+                <textarea
+                  class="form-control"
+                  id="comment"
+                  name="comment"
+                  rows="3"
+                  placeholder="Add a note (optional)"
+                ></textarea>
+                <div class="form-text form-help">
+                  Empty by default.
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="d-flex gap-2">
+                <button id="submitBtn" type="submit" class="btn btn-primary">
+                  Create Schedule
+                </button>
+                <a
+                  class="btn btn-outline-secondary"
+                  href="http://localhost:63342/house-chores-competition/ui/schedules.html" >      Go to Schedule List
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Small helper card -->
+        <div class="card mt-3">
+          <div class="card-body">
+            <small class="text-muted">
+              This page posts to <code>POST http://127.0.0.1/api/schedules</code> with JSON:
+              <pre class="mb-0">
+                  <code>{
+                      "scheduleDate": "YYYY-MM-DDT09:00:00Z",
+                      "choreId": &lt;number&gt;,
+                      "memberId": &lt;number&gt;,
+                      "point": null | &lt;number&gt;,
+                      "status": "Pending",
+                      "comment": ""
+                        }
+                  </code>
+              </pre>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS (optional; for components) -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ---- Configuration ----
+  const GROUP_ID = 1;
+  const CHORES_ENDPOINT = `http://127.0.0.1:5000/api/chores?groupId=${GROUP_ID}`;
+  const MEMBERS_ENDPOINT = `http://127.0.0.1:5000/api/members?groupId=${GROUP_ID}`;
+  const CREATE_SCHEDULE_ENDPOINT = `http://127.0.0.1:5000/api/schedules`;
+
+  // ---- Utilities ----
+  const alertContainer = document.getElementById('alert-container');
+
+  function showAlert(message, type = 'success') {
+    alertContainer.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+  }
+
+  function clearAlert() {
+    alertContainer.innerHTML = '';
+  }
+
+  function setTodayOnDateInput(input) {
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    input.value = todayStr;
+  }
+
+  function buildScheduleDateISO(dateOnlyStr) {
+    const [year, month, day] = dateOnlyStr.split('-').map(Number);
+    const iso = new Date(Date.UTC(year, month - 1, day, 9, 0, 0)).toISOString();
+    return iso;
+  }
+
+  async function loadChores() {
+    const select = document.getElementById('choreId');
+    select.disabled = true;
+    try {
+      const res = await fetch(CHORES_ENDPOINT, { method: 'GET' });
+      if (!res.ok) throw new Error(`Failed to load chores (${res.status})`);
+      const data = await res.json();
+      select.innerHTML = `<option value="">Select a house chore...</option>`;
+      data.data.forEach(member => {
+        const opt = document.createElement('option');
+        opt.value = member.id;
+        opt.textContent = member.name ?? `Member #${member.id}`;
+        select.appendChild(opt);
+      });
+      select.disabled = false;
+    } catch (err) {
+      select.innerHTML = `<option value="">Error loading chores</option>`;
+      showAlert(`Error loading chores: ${err.message}`, 'danger');
+    }
+  }
+
+  async function loadMembers() {
+    const select = document.getElementById('memberId');
+    select.disabled = true;
+    try {
+      const res = await fetch(MEMBERS_ENDPOINT, { method: 'GET' });
+      if (!res.ok) throw new Error(`Failed to load members (${res.status})`);
+      const data = await res.json();
+      select.innerHTML = `<option value="">Select a member...</option>`;
+      data.data.forEach(member => {
+        const opt = document.createElement('option');
+        opt.value = member.id;
+        opt.textContent = member.memberNickname ?? `Member #${member.id}`;
+        select.appendChild(opt);
+      });
+      select.disabled = false;
+    } catch (err) {
+      select.innerHTML = `<option value="">Error loading members</option>`;
+      showAlert(`Error loading members: ${err.message}`, 'danger');
+    }
+  }
+
+  function getPointValueOrNull() {
+    const pointStr = document.getElementById('point').value.trim();
+    if (pointStr === '') return null;
+    const num = Number(pointStr);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  function validateForm() {
+    const dateVal = document.getElementById('scheduleDate').value;
+    const choreVal = document.getElementById('choreId').value;
+    const memberVal = document.getElementById('memberId').value;
+    const errors = [];
+
+    if (!dateVal) errors.push('Please select a schedule date.');
+    if (!choreVal) errors.push('Please select a chore.');
+    if (!memberVal) errors.push('Please select a member.');
+
+    return errors;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    clearAlert();
+
+    const errors = validateForm();
+    if (errors.length) {
+      showAlert(errors.join('<br/>'), 'warning');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+
+    try {
+      const scheduleDateStr = document.getElementById('scheduleDate').value;
+      const scheduleDateISO = buildScheduleDateISO(scheduleDateStr);
+
+      const payload = {
+        scheduleDate: scheduleDateISO,
+        choreId: Number(document.getElementById('choreId').value),
+        memberId: Number(document.getElementById('memberId').value),
+        point: getPointValueOrNull(),
+        status: 'Pending',
+        comment: document.getElementById('comment').value ?? ''
+      };
+
+      const res = await fetch(CREATE_SCHEDULE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        let detail = '';
+        try {
+          const errJson = await res.json();
+          detail = errJson?.message || JSON.stringify(errJson);
+        } catch (_) {}
+        throw new Error(`Create failed (${res.status}). ${detail}`);
+      }
+
+      showAlert('Schedule created successfully!', 'success');
+      document.getElementById('comment').value = '';
+      document.getElementById('point').value = '';
+    } catch (err) {
+      showAlert(`Error creating schedule: ${err.message}`, 'danger');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    setTodayOnDateInput(document.getElementById('scheduleDate'));
+    await Promise.all([loadChores(), loadMembers()]);
+    document.getElementById('schedule-form').addEventListener('submit', handleSubmit);
+  });
+</script>
+</body>
+</html>

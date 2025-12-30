@@ -87,6 +87,16 @@
     "/members" : {
       "get" : {
         "tags": ["Members"],
+        "parameters": [
+          {
+              "name": "groupId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                  "type": "integer"
+              }
+          }
+        ],
         "responses": {},
         "security": []
       }
