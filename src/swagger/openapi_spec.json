@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.1",
   "info" : {
-    "title" : "Feeminton",
+    "title" : "House Chores Competition API",
     "version" : "1.0"
   },
   "servers" : [ {
@@ -51,7 +51,21 @@
             ],
             "responses": {},
             "security": []
-        }
+        },
+      "post": {
+        "tags": ["Chores"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewChore"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "security": []
+      }
     },
     "/schedules": {
         "get": {
@@ -141,57 +155,40 @@
         "responses": {},
         "security": []
       }
-    },
-    "/reservations": {
-      "get" : {
-        "tags": ["Reservations"],
-        "responses": {},
-        "security": []
-      },
-      "post": {
-        "tags": ["Reservations"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewReservation"
-              }
-            }
-          }
-        },
-        "responses": {},
-        "security": []
-      }
-    },
-    "/attendances/{attendance_id}": {
-      "patch": {
-        "tags": ["Attendances"],
-        "parameters": [
-          {
-            "name": "attendance_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAttendance"
-              }
-            }
-          }
-        },
-        "responses": {},
-        "security": []
-      }
     }
   },
   "components" : {
     "schemas": {
+      "NewChore": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Wash the dishes",
+            "description": "Name of the chore"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Clean all dishes in the sink and put them away",
+            "description": "Detailed description of the chore"
+          },
+          "point": {
+            "type": "integer",
+            "example": 0,
+            "description": "Points awarded for completing the chore"
+          },
+          "groupId": {
+            "type": "integer",
+            "example": 3,
+            "description": "ID of the group the chore belongs to"
+          }
+        },
+        "required": [
+          "name",
+          "groupId"
+        ]
+      },
       "NewSchedule": {
             "type": "object",
             "properties": {
@@ -238,25 +235,7 @@
               "chore_id",
               "member_id"
             ]
-          },
-      "NewReservation": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "example": "2023-10-20T14:48:00.000Z"
           }
-        }
-      },
-      "UpdateAttendance": {
-        "type": "object",
-        "properties": {
-          "joined": {
-            "type": "boolean",
-            "example": true
-          }
-        }
-      }
     }
   }
 }

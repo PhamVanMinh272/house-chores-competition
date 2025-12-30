@@ -2,58 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Group Chores</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { margin-bottom: 20px; }
-    table { border-collapse: collapse; width: 60%; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f4f4f4; }
-  </style>
+  <title>House Chores</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Household Chores (Group 1)</h1>
-  <table id="choresTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Chore</th>
-        <th>Points</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- chores will be inserted here -->
-    </tbody>
-  </table>
+<body class="bg-light">
 
-  <script>
-    async function fetchChores() {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/chores?groupId=1');
-        const data = await response.json();
-        renderChores(data.data);
-      } catch (err) {
-        console.error('Error fetching chores:', err);
-      }
-    }
+<div class="container py-5">
+  <h1 class="mb-4">🏠 House Chores</h1>
+  <a
+    class="btn btn-outline-secondary"
+    href="http://localhost:63342/house-chores-competition/ui/schedules.html" >      Go to Schedule List
+  </a>
+  <br><br/>
 
-    function renderChores(chores) {
-      const tbody = document.querySelector('#choresTable tbody');
-      tbody.innerHTML = ''; // clear existing rows
+  <!-- Form to create a new chore -->
+  <div class="card mb-4">
+    <div class="card-header">Add a New Chore</div>
+    <div class="card-body">
+      <form id="choreForm">
+        <div class="mb-3">
+          <label for="name" class="form-label">Chore Name</label>
+          <input type="text" class="form-control" id="name" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="point" class="form-label">Points</label>
+          <input type="number" class="form-control" id="point" required>
+        </div>
+        <div class="mb-3">
+          <label for="groupId" class="form-label">Group ID</label>
+          <input type="number" class="form-control" id="groupId" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Chore</button>
+      </form>
+    </div>
+  </div>
 
-      chores.forEach(chore => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${chore.id}</td>
-          <td>${chore.name}</td>
-          <td>${chore.point}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+  <!-- List of chores -->
+  <div class="card">
+    <div class="card-header">Chore List</div>
+    <ul class="list-group list-group-flush" id="choreList">
+      <!-- chores will be injected here -->
+    </ul>
+  </div>
+</div>
 
-    // Load chores on page load
-    fetchChores();
-  </script>
+<script>
+  const choreForm = document.getElementById('choreForm');
+  const choreList = document.getElementById('choreList');
+
+  // Fetch chores from API
+  async function loadChores() {
+    choreList.innerHTML = '';
+    const res = await fetch('http://127.0.0.1:5000/api/chores?groupId=1');
+    const data = await res.json();
+    data.data.forEach(chore => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+      li.innerHTML = `<span>${chore.name}</span><span class="badge bg-success">${chore.point} pts</span>`;
+      choreList.appendChild(li);
+    });
+  }
+
+  // Handle form submission
+  choreForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      name: document.getElementById('name').value,
+      description: document.getElementById('description').value,
+      point: parseInt(document.getElementById('point').value),
+      groupId: parseInt(document.getElementById('groupId').value)
+    };
+
+    await fetch('http://127.0.0.1:5000/api/chores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    choreForm.reset();
+    loadChores();
+  });
+
+  // Initial load
+  loadChores();
+</script>
+
 </body>
 </html>

@@ -13,7 +13,7 @@ def get_users(conn, **kwargs):
 def create_user(conn, user_data, **kwargs):
     user_id = UserService(conn).create_user(user_data)
     logger.info(f"Created user with ID: {user_id}")
-    return {"user_id": user_id}
+    return {"userId": user_id}
 
 @db_context_manager
 def get_groups(conn, **kwargs):

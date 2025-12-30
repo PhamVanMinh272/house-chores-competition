@@ -27,6 +27,7 @@ CREATE TABLE t_member (
 CREATE TABLE t_chore (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    description TEXT,
     point INTEGER NOT NULL DEFAULT 0,
     group_id INTEGER NOT NULL,
     FOREIGN KEY (group_id) REFERENCES t_Group(id) ON DELETE CASCADE

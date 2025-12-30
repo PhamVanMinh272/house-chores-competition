@@ -25,7 +25,7 @@ def create_schedule(conn, **kwargs):
     schedule_data = schedule_schema.model_dump()
     schedule_id = ScheduleService(conn).create_schedule(**schedule_data)
     logger.info(f"Created schedule with ID: {schedule_id}")
-    return {"schedule_id": schedule_id}
+    return {"scheduleId": schedule_id}
 
 
 @db_context_manager

@@ -18,8 +18,8 @@ INSERT INTO t_group (name) VALUES
 
 -- Members (users assigned to groups)
 INSERT INTO t_member (group_id, user_id, nickname, hex) VALUES
-(1, 1, 'Minh A', '#FF5733'),
-(1, 2, 'Đạt A', '#33FF57'),
+(1, 1, 'Nezuko', '#b519ab'),
+(1, 2, 'Tanjiro', '#267a0a'),
 (2, 3, 'Thiên A', '#3357FF'),
 (2, 4, 'Tâm A', '#3357FF'),
 (2, 5, 'Tấn B', '#3357FF'),
