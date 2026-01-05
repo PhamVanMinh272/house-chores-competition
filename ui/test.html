@@ -1,0 +1,225 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Right Docked Drawer (Bootstrap 5)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    :root {
+      /* Base width; JS will read computed width for precision */
+      --drawer-width: min(380px, 90vw);
+      --drawer-z: 1045;
+      --transition: 200ms ease;
+    }
+
+    /* Drawer styles: docked to the right, full height */
+    .drawer.offcanvas {
+      position: fixed;       /* stay docked */
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: var(--drawer-width);
+      max-width: 100vw;
+      border-left: 1px solid #e5e7eb;
+      box-shadow: -8px 0 16px rgba(0,0,0,0.08);
+      z-index: var(--drawer-z);
+      /* Disable Bootstrap transform animations that can cause overlay jitter */
+      transform: none !important;
+      visibility: hidden;    /* hidden until shown */
+    }
+
+    /* Bootstrap offcanvas toggles visibility; emulate shown state */
+    .drawer.show {
+      visibility: visible;
+    }
+
+    /* Make header sticky inside drawer */
+    .drawer .offcanvas-header {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Push main content when drawer is open */
+    body.drawer-open .main-content {
+      margin-right: var(--drawer-width);
+      transition: margin-right var(--transition);
+    }
+
+    /* Optional: keep navbar aligned too (if full-width) */
+    body.drawer-open .navbar {
+      transition: padding-right var(--transition);
+      padding-right: var(--drawer-width);
+    }
+
+    /* Prevent accidental overlap with fixed elements */
+    @media (max-width: 576px) {
+      /* On very small screens the drawer uses most of the width; main content remains at least some width */
+      body.drawer-open .main-content {
+        margin-right: var(--drawer-width);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top navbar -->
+  <nav class="navbar navbar-light bg-white border-bottom sticky-top">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">My App</span>
+      <div class="ms-auto d-flex gap-2">
+        <button id="openDrawerBtn" class="btn btn-primary">Open Drawer</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="container py-4 main-content">
+    <h1 class="h4">Main Page Content</h1>
+    <p>
+      The drawer docks to the right and the page resizes to make room. Try resizing the browser
+      to see the spacing adjust automatically.
+    </p>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Interactive Card</h5>
+            <p class="card-text">Try clicking buttons and inputs while drawer is open.</p>
+            <button class="btn btn-outline-secondary">Test Button</button>
+            <input type="text" class="form-control mt-3" placeholder="Type here...">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Item A <span class="badge bg-primary rounded-pill">14</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Item B <span class="badge bg-primary rounded-pill">2</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Item C <span class="badge bg-primary rounded-pill">1</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right docked drawer using Bootstrap Offcanvas -->
+  <div
+    id="rightDrawer"
+    class="offcanvas offcanvas-end drawer"
+    tabindex="-1"
+    data-bs-backdrop="false"
+    data-bs-scroll="true"
+    data-bs-keyboard="false"
+    aria-labelledby="rightDrawerLabel"
+  >
+    <div class="offcanvas-header">
+      <h5 id="rightDrawerLabel" class="offcanvas-title">Drawer Title</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Content goes here. Add forms, tabs, and actions.</p>
+
+      <form class="mb-3">
+        <div class="mb-3">
+          <label for="drawerInput1" class="form-label">Sample input</label>
+          <input id="drawerInput1" type="text" class="form-control" placeholder="Type something...">
+        </div>
+
+        <div class="mb-3">
+          <label for="drawerSelect1" class="form-label">Sample select</label>
+          <select id="drawerSelect1" class="form-select">
+            <option value="">Choose…</option>
+            <option>Option 1</option>
+            <option>Option 2</option>
+          </select>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-outline-secondary">Another Action</button>
+        </div>
+      </form>
+
+      <hr>
+      <p class="text-muted small">
+        The drawer remains open until you press the close button above.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize and control the drawer
+    const drawerEl = document.getElementById('rightDrawer');
+    const drawer = new bootstrap.Offcanvas(drawerEl, {
+      backdrop: false, // page remains interactive
+      scroll: true,    // body can scroll
+      keyboard: false  // Esc won't close
+    });
+
+    const openBtn = document.getElementById('openDrawerBtn');
+
+    // Helper: compute actual drawer width and write it to CSS variable
+    function updateDrawerWidthVar() {
+      // Read computed width to reflect min(380px, 90vw) and any CSS changes
+      const rect = drawerEl.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      document.documentElement.style.setProperty('--drawer-width', w + 'px');
+    }
+
+    // Helper: apply push spacing when open
+    function applyPushSpacing() {
+      updateDrawerWidthVar();
+      document.body.classList.add('drawer-open');
+    }
+
+    function removePushSpacing() {
+      document.body.classList.remove('drawer-open');
+    }
+
+    // Open button
+    openBtn.addEventListener('click', () => {
+      drawer.show();
+    });
+
+    // When shown, ensure spacing matches current width
+    drawerEl.addEventListener('shown.bs.offcanvas', () => {
+      applyPushSpacing();
+    });
+
+    // When hidden, remove spacing
+    drawerEl.addEventListener('hidden.bs.offcanvas', () => {
+      removePushSpacing();
+    });
+
+    // Adjust spacing on window resize while the drawer is open
+    window.addEventListener('resize', () => {
+      if (drawerEl.classList.contains('show')) {
+        applyPushSpacing();
+      }
+    });
+
+    // Optional: prevent accidental close from outside triggers
+    drawerEl.addEventListener('hide.bs.offcanvas', (evt) => {
+      const trigger = evt.relatedTarget;
+      const isCloseBtn = trigger && trigger.matches('.btn-close[data-bs-dismiss="offcanvas"]');
+      if (!isCloseBtn) {
+        // Keyboard is already disabled; this guards against programmatic hides
+        // Comment out if you do want to close programmatically elsewhere.
+        // evt.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
