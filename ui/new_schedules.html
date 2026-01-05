@@ -62,12 +62,26 @@
                 />
               </div>
 
-              <!-- Chore select -->
+              <!-- Chore: optional text with autocomplete (datalist) -->
               <div class="mb-3">
-                <label class="form-label required" for="choreId">Chore</label>
-                <select class="form-select" id="choreId" name="choreId" required disabled>
-                  <option value="">Loading chores…</option>
-                </select>
+                <label class="form-label" for="choreName">Chore</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="choreName"
+                  name="choreName"
+                  placeholder="Type to search or create a new chore (optional)"
+                  list="choresList"
+                  aria-describedby="choreHelp"
+                />
+                <datalist id="choresList"></datalist>
+
+                <!-- Hidden: selected choreId if the typed name matches an existing chore -->
+                <input type="hidden" id="choreId" name="choreId" />
+
+                <div id="choreHelp" class="form-text">
+                  Choose an existing chore from suggestions or enter a new one. Leave empty to skip assigning a chore.
+                </div>
               </div>
 
               <!-- Member select -->
@@ -148,10 +162,10 @@
       </div>
     </div>
   </main>
-
-  <!-- Bootstrap JS (optional; for components) -->
+    <!-- Bootstrap JS (optional; for components) -->
 <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
   // ---- Configuration ----
   const GROUP_ID = 1;
@@ -175,34 +189,72 @@
   }
 
   function setTodayOnDateInput(input) {
+    // en-CA format yields yyyy-mm-dd for <input type="date">
     const todayStr = new Date().toLocaleDateString('en-CA');
     input.value = todayStr;
   }
 
   function buildScheduleDateISO(dateOnlyStr) {
+    // Build ISO with 09:00 UTC to avoid TZ shifting the date unintentionally
     const [year, month, day] = dateOnlyStr.split('-').map(Number);
     const iso = new Date(Date.UTC(year, month - 1, day, 9, 0, 0)).toISOString();
     return iso;
   }
 
+  // ---- Chore name matching state ----
+  // Map normalized chore name => { id, name }
+  const choreLookup = new Map();
+
+  function normalizeName(name) {
+    return (name || '').trim().toLowerCase();
+  }
+
+  function setChoreIdByName(name) {
+    const normalized = normalizeName(name);
+    const choreIdInput = document.getElementById('choreId'); // hidden
+    if (normalized && choreLookup.has(normalized)) {
+      choreIdInput.value = choreLookup.get(normalized).id;
+    } else {
+      choreIdInput.value = '';
+    }
+  }
+
+  function populateDatalist(options, datalistEl) {
+    datalistEl.innerHTML = '';
+    options.forEach(({ id, name }) => {
+      const opt = document.createElement('option');
+      opt.value = name || `Chore #${id}`;
+      datalistEl.appendChild(opt);
+    });
+  }
+
+  // ---- Data loading ----
   async function loadChores() {
-    const select = document.getElementById('choreId');
-    select.disabled = true;
+    const choreNameInput = document.getElementById('choreName'); // text input
+    const choresList = document.getElementById('choresList');   // datalist
+
+    // Disable while loading
+    choreNameInput.disabled = true;
+
     try {
-      const res = await fetch(CHORES_ENDPOINT, { method: 'GET' });
+      const res = await fetch(CHORES_ENDPOINT, { method: 'GET', headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error(`Failed to load chores (${res.status})`);
       const data = await res.json();
-      select.innerHTML = `<option value="">Select a house chore...</option>`;
-      data.data.forEach(member => {
-        const opt = document.createElement('option');
-        opt.value = member.id;
-        opt.textContent = member.name ?? `Member #${member.id}`;
-        select.appendChild(opt);
+
+      const items = Array.isArray(data?.data) ? data.data : [];
+      choreLookup.clear();
+      items.forEach(chore => {
+        const key = normalizeName(chore?.name);
+        if (key) choreLookup.set(key, { id: chore.id, name: chore.name });
       });
-      select.disabled = false;
+
+      populateDatalist(items, choresList);
+
+      choreNameInput.disabled = false; // enable typing (optional)
     } catch (err) {
-      select.innerHTML = `<option value="">Error loading chores</option>`;
-      showAlert(`Error loading chores: ${err.message}`, 'danger');
+      showAlert(`Error loading chores: ${err.message}. You can still type a chore name.`, 'warning');
+      // Even if fail, allow custom name entry
+      choreNameInput.disabled = false;
     }
   }
 
@@ -210,11 +262,13 @@
     const select = document.getElementById('memberId');
     select.disabled = true;
     try {
-      const res = await fetch(MEMBERS_ENDPOINT, { method: 'GET' });
+      const res = await fetch(MEMBERS_ENDPOINT, { method: 'GET', headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error(`Failed to load members (${res.status})`);
       const data = await res.json();
+      const items = Array.isArray(data?.data) ? data.data : [];
+
       select.innerHTML = `<option value="">Select a member...</option>`;
-      data.data.forEach(member => {
+      items.forEach(member => {
         const opt = document.createElement('option');
         opt.value = member.id;
         opt.textContent = member.nickname ?? `Member #${member.id}`;
@@ -234,19 +288,19 @@
     return Number.isFinite(num) ? num : null;
   }
 
+  // ---- Validation (chore optional) ----
   function validateForm() {
     const dateVal = document.getElementById('scheduleDate').value;
-    const choreVal = document.getElementById('choreId').value;
     const memberVal = document.getElementById('memberId').value;
     const errors = [];
 
     if (!dateVal) errors.push('Please select a schedule date.');
-    if (!choreVal) errors.push('Please select a chore.');
     if (!memberVal) errors.push('Please select a member.');
 
     return errors;
   }
 
+  // ---- Submit handler ----
   async function handleSubmit(e) {
     e.preventDefault();
     clearAlert();
@@ -264,18 +318,27 @@
       const scheduleDateStr = document.getElementById('scheduleDate').value;
       const scheduleDateISO = buildScheduleDateISO(scheduleDateStr);
 
+      // Chore logic:
+      const choreIdVal = document.getElementById('choreId').value;     // hidden, set when name matches
+      const choreNameVal = document.getElementById('choreName').value.trim();
+      const choreId = choreIdVal ? Number(choreIdVal) : null;
+      // Only send newChoreName when NO choreId matched and user typed something
+      const newChoreName = !choreId && choreNameVal ? choreNameVal : null;
+
       const payload = {
         scheduleDate: scheduleDateISO,
-        choreId: Number(document.getElementById('choreId').value),
         memberId: Number(document.getElementById('memberId').value),
         point: getPointValueOrNull(),
         status: 'Pending',
-        comment: document.getElementById('comment').value ?? ''
+        comment: document.getElementById('comment').value ?? '',
+        // Either choreId or newChoreName (or both null if user left empty)
+        choreId,
+        newChoreName
       };
 
       const res = await fetch(CREATE_SCHEDULE_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
       });
 
@@ -291,6 +354,9 @@
       showAlert('Schedule created successfully!', 'success');
       document.getElementById('comment').value = '';
       document.getElementById('point').value = '';
+      document.getElementById('choreName').value = '';
+      document.getElementById('choreId').value = '';
+
       // Auto redirect
       window.location.href = 'http://localhost:63342/house-chores-competition/ui/schedules.html';
 
@@ -301,11 +367,21 @@
     }
   }
 
+  // ---- Wire events ----
   document.addEventListener('DOMContentLoaded', async () => {
     setTodayOnDateInput(document.getElementById('scheduleDate'));
+
+    // Listen to user typing and resolve choreId match
+    const choreNameInput = document.getElementById('choreName');
+    choreNameInput.addEventListener('input', (e) => {
+      setChoreIdByName(e.target.value);
+    });
+
     await Promise.all([loadChores(), loadMembers()]);
+
     document.getElementById('schedule-form').addEventListener('submit', handleSubmit);
   });
 </script>
+
 </body>
 </html>

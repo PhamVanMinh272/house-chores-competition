@@ -1,7 +1,11 @@
 from datetime import date, timedelta
 
+from src.common.exceptions import InvalidData
+from src.data_repo.member_repo import MemberRepo
 from src.data_repo.schedule_repo import ScheduleRepo
 from src.data_repo.house_chore_repo import HouseChoreRepo
+from src.schemas.pydantic_models.schedules import NewScheduleModel
+from src.settings import logger
 
 
 class ScheduleService:
@@ -26,19 +30,30 @@ class ScheduleService:
         """
         return ScheduleRepo(self._conn).get_schedule_by_id(schedule_id)
 
-    def create_schedule(self, schedule_date: str, chore_id: int, member_id: int, point: int, status: str, comment: str):
+    def create_schedule(self, new_schedule: NewScheduleModel):
         """
 
         """
-        if not point or point == 0:
+
+        point = new_schedule.point
+        if not new_schedule.point or new_schedule.point == 0:
             # get point from chore
-            chore = HouseChoreRepo(self._conn).get_chore_by_id(chore_id)
+            chore = HouseChoreRepo(self._conn).get_chore_by_id(new_schedule.chore_id)
             if not chore:
-                raise ValueError(f"Chore with ID {chore_id} does not exist.")
+                raise InvalidData("Requires point.")
             point = chore["point"]
-        if not schedule_date:
+        schedule_date = new_schedule.schedule_date
+        if not new_schedule.schedule_date:
             schedule_date = str(date.today())
-        return ScheduleRepo(self._conn).create_schedule(schedule_date, chore_id, member_id, point, status, comment)
+
+        # create chore if chore_id is not provided
+        if not new_schedule.chore_id:
+            logger.info("Chore ID not provided, creating new chore.")
+            group_id = MemberRepo(self._conn).get_member_by_id(new_schedule.member_id)["group"]["id"]
+            chore_id = HouseChoreRepo(self._conn).create_chore(new_schedule.new_chore_name, "", point, group_id)
+            new_schedule.chore_id = chore_id
+
+        return ScheduleRepo(self._conn).create_schedule(schedule_date, new_schedule.chore_id, new_schedule.member_id, point, new_schedule.status, new_schedule.comment)
 
     def update_schedule(self, schedule_id: int, member_id:int, schedule_date: str, point: int, status: str, comment: str):
         """

@@ -22,8 +22,7 @@ def get_schedule(conn, schedule_id, **kwargs):
 def create_schedule(conn, **kwargs):
     print(kwargs)
     schedule_schema = NewScheduleModel(**kwargs)
-    schedule_data = schedule_schema.model_dump()
-    schedule_id = ScheduleService(conn).create_schedule(**schedule_data)
+    schedule_id = ScheduleService(conn).create_schedule(schedule_schema)
     logger.info(f"Created schedule with ID: {schedule_id}")
     return {"scheduleId": schedule_id}
 
