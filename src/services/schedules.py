@@ -35,13 +35,16 @@ class ScheduleService:
 
         """
 
-        point = new_schedule.point
-        if not new_schedule.point or new_schedule.point == 0:
-            # get point from chore
+        if new_schedule.point is not None:
+            point = new_schedule.point
+        elif not new_schedule.chore_id:
+            point = 0
+        else:
             chore = HouseChoreRepo(self._conn).get_chore_by_id(new_schedule.chore_id)
             if not chore:
                 raise InvalidData("Requires point.")
             point = chore["point"]
+
         schedule_date = new_schedule.schedule_date
         if not new_schedule.schedule_date:
             schedule_date = str(date.today())
