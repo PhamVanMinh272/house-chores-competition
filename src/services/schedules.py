@@ -58,20 +58,21 @@ class ScheduleService:
 
         return ScheduleRepo(self._conn).create_schedule(schedule_date, new_schedule.chore_id, new_schedule.member_id, point, new_schedule.status, new_schedule.comment)
 
-    def update_schedule(self, schedule_id: int, member_id:int, schedule_date: str, point: int, status: str, comment: str):
+    def update_schedule(self, schedule_id: int, update_schedule: NewScheduleModel):
         """
         Update a schedule.
         Get schedule by ID, then update its fields if changed.
         """
         # if (schedule_date: str, status: str, comment: str) is none, keep existing values
+        logger.info(f"Updating schedule ID {schedule_id} with data: {update_schedule}")
         existing_schedule = ScheduleRepo(self._conn).get_schedule_by_id(schedule_id)
         if not existing_schedule:
             raise ValueError(f"Schedule with ID {schedule_id} does not exist.")
-        member_id = member_id if member_id is not None else existing_schedule["member"]["id"]
-        new_schedule_date = schedule_date if schedule_date is not None else existing_schedule["scheduleDate"]
-        new_point = point if point is not None else existing_schedule["point"]
-        new_status = status if status is not None else existing_schedule["status"]
-        new_comment = comment if comment is not None else existing_schedule["comment"]
+        member_id = update_schedule.member_id if update_schedule.member_id is not None else existing_schedule["member"]["id"]
+        new_schedule_date = update_schedule.schedule_date if update_schedule.schedule_date is not None else existing_schedule["scheduleDate"]
+        new_point = update_schedule.point if update_schedule.point is not None else existing_schedule["point"]
+        new_status = update_schedule.status if update_schedule.status is not None else existing_schedule["status"]
+        new_comment = update_schedule.comment if update_schedule.comment is not None else existing_schedule["comment"]
         ScheduleRepo(self._conn).update_schedule(schedule_id, member_id, new_schedule_date, new_point, new_status, new_comment)
 
 

@@ -31,8 +31,7 @@ def create_schedule(conn, **kwargs):
 def update_schedule(conn, schedule_id, **kwargs):
     logger.info(f"Updating schedule ID {schedule_id} with data: {kwargs}")
     schedule_schema = NewScheduleModel(**kwargs)
-    schedule_data = schedule_schema.model_dump(by_alias=False, exclude={"chore_id", "new_chore_name"})
-    ScheduleService(conn).update_schedule(schedule_id, **schedule_data)
+    ScheduleService(conn).update_schedule(schedule_id, schedule_schema)
     logger.info(f"Updated schedule with ID: {schedule_id}")
     return {"status": "success"}
 

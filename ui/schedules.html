@@ -81,6 +81,19 @@
           <select class="form-select" id="editMember"></select>
         </div>
         <div class="mb-3">
+          <label for="editPoint" class="form-label">Point</label>
+          <input
+              type="number"
+              class="form-control"
+              id="editPoint"
+              name="editPoint"
+              min="0"
+              step="1"
+              placeholder="Enter a number"
+            />
+
+        </div>
+        <div class="mb-3">
           <label for="editStatus" class="form-label">Status</label>
           <select class="form-select" id="editStatus">
             <option value="Pending">Pending</option>
@@ -229,6 +242,7 @@
         ).join('');
 
         // Other fields
+        document.getElementById('editPoint').value = scheduleData.point;
         document.getElementById('editStatus').value = scheduleData.status;
         document.getElementById('editComment').value = scheduleData.comment || '';
 
@@ -250,6 +264,7 @@
       const payload = {
         choreId: Number(document.getElementById('editChore').value),
         memberId: Number(document.getElementById('editMember').value),
+        point: Number(document.getElementById('editPoint').value),
         status: document.getElementById('editStatus').value,
         comment: document.getElementById('editComment').value
       };
